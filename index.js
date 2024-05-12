@@ -33,6 +33,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     const jobCollection = client.db("jobDB").collection("jobCollection");
+    const applyJobCollections = client.db("jobDB").collection("applyJobCollections");
 
     app.get("/", (req, res)=>{
       res.send('hello from career peak server')
@@ -47,6 +48,13 @@ async function run() {
       const findId = {_id: new ObjectId(id)};
       const result = await jobCollection.findOne(findId);
       res.send(result);
+    })
+
+    app.post("/applyjob", async(req, res)=>{
+      const data = req.body;
+      console.log(data);
+      const result = await applyJobCollections.insertOne(data)
+      res.send(result)
     })
 
 
