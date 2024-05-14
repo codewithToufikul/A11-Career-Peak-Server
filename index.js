@@ -58,6 +58,12 @@ async function run() {
       const result = await jobCollection.findOne(findId);
       res.send(result);
     })
+    app.get("/blogs/:id", async(req, res)=>{
+      const id = req.params.id;
+      const findId = {_id: new ObjectId(id)};
+      const result = await blogsCollections.findOne(findId);
+      res.send(result);
+    })
 
     app.post("/applyjob", async(req, res)=>{
       const data = req.body;
