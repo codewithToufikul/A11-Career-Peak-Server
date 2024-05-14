@@ -34,6 +34,7 @@ async function run() {
   try {
     const jobCollection = client.db("jobDB").collection("jobCollection");
     const applyJobCollections = client.db("jobDB").collection("applyJobCollections");
+    const blogsCollections = client.db("jobDB").collection("blogsCollectiona");
 
     app.get("/", (req, res)=>{
       res.send('hello from career peak server')
@@ -41,6 +42,10 @@ async function run() {
     
     app.get("/jobs", async(req, res)=>{
       const result = await jobCollection.find().toArray();
+      res.send(result)
+    })
+    app.get("/blogs", async(req, res)=>{
+      const result = await blogsCollections.find().toArray();
       res.send(result)
     })
     app.get("/applyjob", async(req, res)=>{
