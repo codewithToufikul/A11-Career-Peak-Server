@@ -43,6 +43,10 @@ async function run() {
       const result = await jobCollection.find().toArray();
       res.send(result)
     })
+    app.get("/applyjob", async(req, res)=>{
+      const result = await applyJobCollections.find().toArray();
+      res.send(result)
+    })
     app.get("/jobs/:id", async(req, res)=>{
       const id = req.params.id;
       const findId = {_id: new ObjectId(id)};
@@ -55,6 +59,54 @@ async function run() {
       console.log(data);
       const result = await applyJobCollections.insertOne(data)
       res.send(result)
+    })
+    app.post("/jobs", async(req, res)=>{
+      const data = req.body;
+      console.log(data);
+      const result = await jobCollection.insertOne(data)
+      res.send(result)
+    })
+
+    app.get("/jobsByEmail/:email", async(req, res)=>{
+      const email = req.params.email;
+      const query = {"userEmail": email};
+      const result = await jobCollection.find(query).toArray();
+      res.send(result);
+    })
+    
+    // update jov
+    app.patch("/jobs/:id", async(req, res)=>{
+      const id = req.params.id;
+      const filter = {_id: new ObjectId(id)};
+      const options = {upsert: true};
+      const body = req.body;
+      console.log(body);
+      const updatedJob = {
+        $set:{
+          jobTitle: body.jobTitle,
+          userName: body.userName,
+          jobBannerImg: body.jobBannerImg,
+          userEmail: body.userEmail,
+          jobCategory: body.jobCategory,
+          salaryRange: body.salaryRange,
+          jobDescription: body.jobDescription,
+          jobPostingDate: body.jobPostingDate,
+          applicationDeadline: body.applicationDeadline,
+          jobApplicantsNumber: body.jobApplicantsNumber
+        }
+      }
+      const result = await jobCollection.updateOne(filter, updatedJob, options)
+      res.send(result);
+    })
+
+    // delete job
+
+    app.delete("/jobs/:id", async(req, res)=>{
+      const id = req.params.id;
+      console.log(id);
+      const query = {_id: new ObjectId(id)};
+      const result = jobCollection.deleteOne(query);
+      res.send(result);
     })
 
 
