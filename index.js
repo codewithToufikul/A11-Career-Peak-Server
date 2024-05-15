@@ -120,6 +120,26 @@ async function run() {
       res.send(result);
     })
 
+    // search method
+    app.get('/jobss', async (req, res) => {
+      try {
+        const search = req.query.search;
+        let query = {};
+    
+        if (search) {
+          query = {
+            jobTitle: { $regex: search, $options: 'i' }
+          };
+        }
+    
+        const result = await jobCollection.find(query).toArray();
+        res.send(result);
+      } catch (error) {
+        console.error("Error occurred while fetching jobs:", error);
+        res.status(500).send("Internal Server Error");
+      }
+    });
+
 
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
