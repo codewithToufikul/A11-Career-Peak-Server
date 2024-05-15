@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const jwt = require('jsonwebtoken')
 const app = express();
 require('dotenv').config()
 const port = process.env.PORT || 5000
@@ -39,6 +40,22 @@ async function run() {
     app.get("/", (req, res)=>{
       res.send('hello from career peak server')
     })
+
+    // jwt genarete
+    app.post("/jwt", async(req, res)=>{
+      const user = req.body
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: '2d'
+      })
+      res
+      .cookie('token', token,{
+        httpOnly:true,
+        secure:false,
+        sameSite:'none'
+      })
+      .send({success: true})
+    })
+
     
     app.get("/jobs", async(req, res)=>{
       const result = await jobCollection.find().toArray();
