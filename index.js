@@ -8,7 +8,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 
 const corsOptions = {
-  origin: ['http://localhost:5173', 'http://localhost:5173'], 
+  origin: ['https://career-peak.web.app', 'https://career-peak.firebaseapp.com'], 
   credentials: true,
   optionSuccessStatus: 200,
 };
