@@ -7,10 +7,10 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 
 const corsOptions = {
-  origin: ['http://localhost:5173/', 'http://localhost:5173/'],
-  Credential: true,
+  origin: ['http://localhost:5173', 'http://localhost:5173'], 
+  credentials: true,
   optionSuccessStatus: 200,
-}
+};
 // middleware
 app.use(cors());
 app.use(express.json());
@@ -67,10 +67,25 @@ async function run() {
 
     app.post("/applyjob", async(req, res)=>{
       const data = req.body;
-      console.log(data);
-      const result = await applyJobCollections.insertOne(data)
-      res.send(result)
+      try {
+        const result = await applyJobCollections.insertOne(data);
+
+        const filter = { _id: new ObjectId(data.jobId) };
+        const updateDoc = {
+            $inc: {
+                jobApplicantsNumber: 1
+            }
+        };
+        await jobCollection.updateOne(filter, updateDoc);
+
+        res.send(result);
+    } catch (error) {
+        console.error("Error occurred while applying for job:", error);
+        res.status(500).send("Internal Server Error");
+    }
     })
+
+
     app.post("/jobs", async(req, res)=>{
       const data = req.body;
       console.log(data);
@@ -85,30 +100,23 @@ async function run() {
       res.send(result);
     })
     
-    // update jov
-    app.patch("/jobs/:id", async(req, res)=>{
+
+    app.patch("/jobs/:id", async(req, res) => {
       const id = req.params.id;
-      const filter = {_id: new ObjectId(id)};
-      const options = {upsert: true};
+      const filter = { _id: new ObjectId(id) };
       const body = req.body;
-      console.log(body);
-      const updatedJob = {
-        $set:{
-          jobTitle: body.jobTitle,
-          userName: body.userName,
-          jobBannerImg: body.jobBannerImg,
-          userEmail: body.userEmail,
-          jobCategory: body.jobCategory,
-          salaryRange: body.salaryRange,
-          jobDescription: body.jobDescription,
-          jobPostingDate: body.jobPostingDate,
-          applicationDeadline: body.applicationDeadline,
-          jobApplicantsNumber: body.jobApplicantsNumber
-        }
+      if (body.jobApplicantsNumber) {
+        body.jobApplicantsNumber = parseInt(body.jobApplicantsNumber);
       }
-      const result = await jobCollection.updateOne(filter, updatedJob, options)
-      res.send(result);
-    })
+
+      try {
+        const result = await jobCollection.updateOne(filter, { $set: body });
+        res.send(result);
+      } catch (error) {
+        console.error("Error updating job:", error);
+        res.status(500).send("Internal Server Error");
+      }
+    });
 
     // delete job
 
@@ -119,7 +127,7 @@ async function run() {
       const result = jobCollection.deleteOne(query);
       res.send(result);
     })
-
+    
     // search method
     app.get('/jobss', async (req, res) => {
       try {
