@@ -8,7 +8,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 
 const corsOptions = {
-  origin: ['https://career-peak.web.app', 'https://career-peak.firebaseapp.com'], 
+  // origin: ['https://career-peak.web.app', 'https://career-peak.firebaseapp.com'], 
   credentials: true,
   optionSuccessStatus: 200,
 };
@@ -36,6 +36,7 @@ async function run() {
     const jobCollection = client.db("jobDB").collection("jobCollection");
     const applyJobCollections = client.db("jobDB").collection("applyJobCollections");
     const blogsCollections = client.db("jobDB").collection("blogsCollectiona");
+    const reviewsCollections = client.db("jobDB").collection("reviewsCollections");
 
     app.get("/", (req, res)=>{
       res.send('hello from career peak server')
@@ -54,6 +55,19 @@ async function run() {
         sameSite:'none'
       })
       .send({success: true})
+    })
+
+    // reviews
+    app.post("/reviews", async(req, res)=>{
+      const data = req.body;
+      const result = await reviewsCollections.insertOne(data)
+      res.send(result)
+
+    })
+
+    app.get("/reviews", async(req, res)=>{
+      const result = await reviewsCollections.find().toArray()
+      res.send(result)
     })
 
     
